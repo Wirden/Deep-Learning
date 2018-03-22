@@ -3,7 +3,7 @@ import pandas as pd
 class Review(object):
     """docstring for Review"""
     def __init__(self):
-        super(Review, self).__init__()
+        super().__init__()
 
     @staticmethod
     def parse(xml_data):
@@ -24,7 +24,7 @@ class Review(object):
 class AmazonReviewsParser(object):
     """docstring for AmazonReviewsParser"""
     def __init__(self, filepath):
-        super(AmazonReviewsParser, self).__init__()
+        super().__init__()
         self.filepath = filepath
 
     @staticmethod

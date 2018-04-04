@@ -39,7 +39,7 @@ class Review(object):
         for line in xml_data:
             if line.startswith("</") and line.endswith(">"):
                 current_key = None
-            elif line.startswith("<") and line.endswith(">"):
+            elif line.startswith("<") and line.endswith(">") and not line.startswith("<br />"):
                 current_key = line[1:-1]
                 if current_key not in data:
                     if current_key in Review.KEY_MULTI_ENTRY:
@@ -51,6 +51,8 @@ class Review(object):
                     data[current_key].append(line)
                 elif current_key == 'date':
                     data[current_key] = Review.parse_date(line)
+                elif current_key == 'rating':
+                    data[current_key] = float(line)
                 else:
                     data[current_key] = line
         pos_helpful, total_helpful = Review.helpful2score(data['helpful'])

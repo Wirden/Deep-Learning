@@ -6,6 +6,8 @@ class Review(object):
     def __init__(self):
         super().__init__()
 
+    KEY_MULTI_ENTRY = ['unique_id', 'product_type']
+
     @staticmethod
     def parse(xml_data: list):
         current_key = None
@@ -16,9 +18,15 @@ class Review(object):
             elif line.startswith("<") and line.endswith(">"):
                 current_key = line[1:-1]
                 if current_key not in data:
-                    data[current_key] = []
+                    if current_key in Review.KEY_MULTI_ENTRY:
+                        data[current_key] = []
+                    else:
+                        data[current_key] = None
             else:
-                data[current_key].append(line)
+                if current_key in Review.KEY_MULTI_ENTRY:
+                    data[current_key].append(line)
+                else:
+                    data[current_key] = line
         pos_helpful, total_helpful = Review.helpful2score(data['helpful'])
         data['pos_helpful'] = pos_helpful
         data['total_helpful'] = total_helpful
@@ -26,10 +34,9 @@ class Review(object):
 
     @staticmethod
     def helpful2score(helpful_list: list):
-        if len(helpful_list) > 1:
-            print("WARN: %s not containing just one helpfulness rating" % helpful_list)
         try:
-            return int(helpful_list[0].split(' of ')[0]), int(helpful_list[0].split(' of ')[1])
+            positive, total = helpful_list.split(' of ')
+            return int(positive), int(total)
         except ValueError:  # d/D can't be parsed as ints
             return 0.0, 0.0
 
@@ -55,4 +62,3 @@ class AmazonReviewsParser(object):
                 else:
                     review.append(line)
         return pd.DataFrame(reviews)
-

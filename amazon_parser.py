@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 
 
 class Review(object):
@@ -7,6 +8,29 @@ class Review(object):
         super().__init__()
 
     KEY_MULTI_ENTRY = ['unique_id', 'product_type']
+
+    MONTHS_MAP = {
+        "January": 1,
+        "February": 2,
+        "March": 3,
+        "April": 4,
+        "May": 5,
+        "June": 6,
+        "July": 7,
+        "August": 8,
+        "September": 9,
+        "October": 10,
+        "November": 11,
+        "December": 12,
+    }
+
+    @staticmethod
+    def parse_date(date_str: str):
+        try:
+            month_str, day_str, year_str = date_str.split()
+            return datetime.datetime(int(year_str), Review.MONTHS_MAP[month_str], int(day_str[:-1]))
+        except ValueError:
+            return None
 
     @staticmethod
     def parse(xml_data: list):
@@ -25,6 +49,8 @@ class Review(object):
             else:
                 if current_key in Review.KEY_MULTI_ENTRY:
                     data[current_key].append(line)
+                elif current_key == 'date':
+                    data[current_key] = Review.parse_date(line)
                 else:
                     data[current_key] = line
         pos_helpful, total_helpful = Review.helpful2score(data['helpful'])

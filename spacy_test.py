@@ -8,7 +8,9 @@ import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 from amazon_parser import AmazonReviewsParser
 import numpy as np
+import pandas as pd
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
 
 def main():
     
@@ -24,19 +26,11 @@ def main():
     df['review_vector'] = df.review_docs.apply(lambda x:x.vector)   
     df.rating = df.rating.astype(int)
     
-    b = np.zeros((len(df),5))
-    b[np.arange(len(df)), df.rating.values-1] = 1
-
-    print(b)
+    one_hot_labels = np.zeros((len(df),5))
+    one_hot_labels[np.arange(len(df)), df.rating.values-1] = 1
     
-  #  train_features = df['review_vector'].sample(frac=0.8,random_state=200)
-   # train_labels = df['rating_hot'].sample(frac=0.8,random_state=200)
-    
-   # test_features = df['review_vector'].drop(train_features.index)
-    #test_labels = df['rating_hot'].drop(train_labels.index)
-    
-   # print (test_features)
-    #print(test_labels)
+    X_train, X_test, y_train, y_test = 
+        train_test_split(df.review_vector,one_hot_labels, test_size=0.10)
     
     graph = tf.Graph()
  
@@ -44,12 +38,12 @@ def main():
     
         x = tf.placeholder(dtype = tf.float32)
         
-        W = tf.Variable(tf.zeros([300, 4]))
-        b = tf.Variable(tf.zeros([4]))
+        W = tf.Variable(tf.zeros([300, 5]))
+        b = tf.Variable(tf.zeros([5]))
     
         logits = tf.matmul(x, W) + b
     
-        y_ = tf.placeholder(tf.float32, [None, 4])
+        y_ = tf.placeholder(tf.float32, [None, 5])
         
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
                 labels=y_, logits=logits))
@@ -61,12 +55,8 @@ def main():
             print("Initialized")
             
             
-
-
-    
-    
-    #loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = x))
-    
+            
+            
 
 if __name__ == '__main__':
     main()
